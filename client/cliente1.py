@@ -1,7 +1,7 @@
 import time, socket, sys
 print('Setup do Cliente ...')
 time.sleep(1)
-#Get the hostname, IP Address from socket and set Port
+#Get the hostname, IP Address from socket and set Port // Teste de acesso
 soc = socket.socket()
 shost = socket.gethostname()
 ip = socket.gethostbyname(shost)
