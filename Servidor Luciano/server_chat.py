@@ -7,18 +7,25 @@ aceitam novas conexões, e sockets de input conectadas para aceitar clientes.
 import time
 import select
 import socket
+from datetime import datetime
 
 def agora(): return time.ctime(time.time())
 
 # Configurações do servidor
-meuHost = ''
-minhaPort = 50007
+meuHost = '127.0.0.1' #IP de Loopback
+
 
 # Número de sockets usados
 numPortSocks = 2
 
 # Lista de sockets criados por função de cada socket
 socks_principais, le_socks, escreve_socks = [], [], []
+
+
+# --------------------------------------------Programa Principal--------------------------------------------
+
+# Recebe a entrada referente ao número da porta
+minhaPort = int(input())
 
 # Cria um socket para cada função
 for i in range(numPortSocks):
@@ -36,8 +43,6 @@ for i in range(numPortSocks):
     # Aumenta o valor da port para mudar o próximo socket
     minhaPort += 1
 
-print('Loop de seleção de socket iniciado')
-
 while True:
     # Vemos todos os sockets legíveis e escrevíveis e os selecionamos
     legiveis, escreviveis, excessoes = select.select(le_socks, escreve_socks, [])
@@ -49,16 +54,17 @@ while True:
             # Aceita o socket
             novo_sock, endereco = sockobj.accept()
             # Imprime as conexões
-            print('Conecta: ', endereco, id(novo_sock))
+            # print('Conecta: ', endereco, id(novo_sock))
             # E o coloca no socket de leitura
             le_socks.append(novo_sock)
+
+            # data = sockobj.recv(1024)
+            # now = datetime.now()
+            # print(now.strftime("%H:%M"), "\t", data ,"\t Conectado")
 
         else:
             # Lemos o que está no socket
             data = sockobj.recv(1024)
-
-            # Imprime a mensagem recebida
-            print('\tRecebeu', data, 'em', id(sockobj))
 
             # Se não recebermos nada
             if not data:
@@ -68,9 +74,14 @@ while True:
                 le_socks.remove(sockobj)
             # Caso contrário
             else:
+
+                # Imprime a mensagem recebida
+                print(data.decode())
+                # print('\tRecebeu', data, 'em', id(sockobj))
+
                 # Preparamos uma resposta a ser enviada
-                resposta = 'Eco=>%s as %s' % (data, agora())
-                sockobj.send(resposta.encode())
+                # resposta = 'Eco=>%s as %s' % (data, agora())
+                # sockobj.send(resposta.encode())
 
 
 
