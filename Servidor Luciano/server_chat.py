@@ -21,6 +21,8 @@ numPortSocks = 2
 # Lista de sockets criados por função de cada socket
 socks_principais, le_socks, escreve_socks = [], [], []
 
+clientmap = {}
+
 
 # --------------------------------------------Programa Principal--------------------------------------------
 
@@ -53,15 +55,10 @@ while True:
         if sockobj in socks_principais:
             # Aceita o socket
             novo_sock, endereco = sockobj.accept()
-            # Imprime as conexões
-            # print('Conecta: ', endereco, id(novo_sock))
             # E o coloca no socket de leitura
             le_socks.append(novo_sock)
 
-            # data = sockobj.recv(1024)
-            # now = datetime.now()
-            # print(now.strftime("%H:%M"), "\t", data ,"\t Conectado")
-
+            escreve_socks.append(novo_sock)
         else:
             # Lemos o que está no socket
             data = sockobj.recv(1024)
@@ -74,9 +71,29 @@ while True:
                 le_socks.remove(sockobj)
             # Caso contrário
             else:
+                command, message = str(data.decode()).split(" ", 1)
+
+                # Primeira mensagem do cliente: Conexão.
+                if command == "CONN":
+                    # Registra o nome do cliente
+                    name = message.strip()
+                    clientmap[sockobj] = name
+                    now = datetime.now()
+                    print('{} \t {} \t Conectado'.format(now.strftime("%H:%M"), name))
+
+                elif command == "SEND":
+                    name = clientmap[sockobj]
+                    for o in escreve_socks:
+                        if o != sockobj:
+                            o.send(('{}: {}'.format(name, message).encode()))
+
+                else:
+                    sockobj.send('Mensagem Recebida'.encode())
+
+
 
                 # Imprime a mensagem recebida
-                print(data.decode())
+                # print()
                 # print('\tRecebeu', data, 'em', id(sockobj))
 
                 # Preparamos uma resposta a ser enviada
