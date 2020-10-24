@@ -63,7 +63,7 @@ while True:
             # Lemos o que está no socket
             data = sockobj.recv(1024)
 
-            # Se não recebermos nada.
+            # Se não recebermos nada
             if not data:
                 # Fechamos os socket
                 sockobj.close()
