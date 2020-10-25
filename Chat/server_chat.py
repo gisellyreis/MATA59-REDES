@@ -21,7 +21,7 @@ try:
     main_socket.bind((HOST, port))
     main_socket.listen(5)
 
-    # Adiciona o Socket principal a lista de leitores
+    # Adiciona o socket principal a lista de leitores
     rList.append(main_socket)
 
     while True:
@@ -126,6 +126,7 @@ try:
                     # Retorna a lista de cliente conectados
                     elif command == "WHO":
                         try:
+                            name = clientmap[sockobj]
                             msgBuilder = ".:LISTA DE CLIENTE CONECTADOS:.\n"
                             for reg in clientmap.items():
                                 msgBuilder+= "{}\n".format(reg[1])
@@ -138,6 +139,7 @@ try:
                     # Retorna a lista comandos suportados e seu uso
                     elif command == "HELP":
                         try:
+                            name = clientmap[sockobj]
                             msgBuilder = ".:LISTA DE COMANDO:.\n"
                             msgBuilder += "SEND: Envia uma mensagem para todos os clientes conectados (menos para você mesmo) [SEND <MESSAGE>].\n"
                             msgBuilder += "SENDTO: Envia uma mensagem para um cliente especifico que está conectado (menos para você mesmo) [SENDTO <CLIENTS_NAME> <MESSAGE>].\n"
