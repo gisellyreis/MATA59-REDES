@@ -1,38 +1,49 @@
-import time, socket, sys, threading
+import time, socket, sys, threading, signal
 from datetime import datetime
 
-global soc, Exit_thread
-Exit_thread = False
+soc = socket.socket()
+exit_prog = False
+
+def signal_handler(signal, frame):
+  sys.exit(0)
 
 def ReceberMsg():
-   while True:
-      message = soc.recv(1024)
-      message = message.decode()
-      print(message)
-      if Exit_thread:
-         break
+   global exit_prog
 
+   while True:
+      data = soc.recv(1024)
+      if not data or exit_prog:
+         soc.close()
+         break
+      else:
+         print(data.decode())
 
 
 name, server_host, port = input().split()
 
-soc = socket.socket()
 soc.connect((server_host, int(port)))
-print("Conectado\n")
-
-# now = datetime.now()
-# connectionMessage =  ('{} \t {} \t Conectado'.format(now.strftime("%H:%M"), name))
-
-# Envia mensagem para o servidor dizendo que está conectado.
-connectionMessage = 'CONN {}'.format(name)
+connectionMessage = name
 soc.send(connectionMessage.encode())
 
+message = soc.recv(1024).decode()
+print(message)
 
-# Inicia a Thread responsável por receber as mensagens do servidor.
-t = threading.Thread(target=ReceberMsg)
-t.start()
+if str(message).split(" ", 1)[0] != "ERRO:":
+   # Inicia a Thread responsável por receber as mensagens do servidor.
+   t = threading.Thread(target=ReceberMsg)
+   t.start()
 
-while True:
-   message = input()
-   soc.send(message.encode())
+   while True:
+      message = input()
+
+      # if keyboard.is_pressed('Ctrl + c'):
+      #    print('Você foi desconectado.')
+      #    soc.close()
+      #    exit_prog = True
+      #    time.sleep(1)
+      #    sys.exit(0)
+
+      soc.send(message.encode())
+
+print("Programa finalizado.")
 

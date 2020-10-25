@@ -55,50 +55,110 @@ while True:
         if sockobj in socks_principais:
             # Aceita o socket
             novo_sock, endereco = sockobj.accept()
-            # E o coloca no socket de leitura
-            le_socks.append(novo_sock)
+            name = str(novo_sock.recv(1024).decode()).strip()
+            socketReady = True
 
-            escreve_socks.append(novo_sock)
+            for reg in clientmap.items():
+                if str(reg[1]).upper() == name.upper():
+                    novo_sock.send("ERRO: O nome de usuário já está em uso.".encode())
+                    novo_sock.close()
+                    socketReady = False
+                    break
+            
+            if socketReady:
+                le_socks.append(novo_sock)
+                escreve_socks.append(novo_sock)
+
+                clientmap[novo_sock] = name
+                now = datetime.now()
+                print('{} \t {} \t Conectado'.format(now.strftime("%H:%M"), name))
+                novo_sock.send("Conectado com sucesso.".encode())
         else:
-            # Lemos o que está no socket
-            data = sockobj.recv(1024)
+            try:
+                # Lemos o que está no socket
+                data = sockobj.recv(1024)
+            except:
+                data = None
+           
 
-            # Se não recebermos nada.
+            # Se não recebermos nada
             if not data:
+                name = clientmap[sockobj]
+
                 # Fechamos os socket
                 sockobj.close()
                 # E o removemos do socket de leitura
                 le_socks.remove(sockobj)
-            # Caso contrário
+                escreve_socks.remove(sockobj)
+                del clientmap[sockobj]
+
+                now = datetime.now()
+                print('{} \t {} \t Desconectado'.format(now.strftime("%H:%M"), name))
             else:
-                command, message = str(data.decode()).split(" ", 1)
+                command = ""
+                message = ""
+                msgExec = "Sim"
 
-                # Primeira mensagem do cliente: Conexão.
-                if command == "CONN":
-                    # Registra o nome do cliente
-                    name = message.strip()
-                    clientmap[sockobj] = name
-                    now = datetime.now()
-                    print('{} \t {} \t Conectado'.format(now.strftime("%H:%M"), name))
+                sArgs = str(data.decode()).split(" ", 1)
+                if (len(sArgs) > 0):
+                    command = sArgs[0]
+                    if(len(sArgs) == 2):
+                        message = sArgs[1]
 
-                elif command == "SEND":
-                    name = clientmap[sockobj]
-                    for o in escreve_socks:
-                        if o != sockobj:
-                            o.send(('{}: {}'.format(name, message).encode()))
+
+                if command == "SEND":
+                    try:
+                        name = clientmap[sockobj]
+                        for o in escreve_socks:
+                            if o != sockobj:
+                                o.send(('{}: {}'.format(name, message).encode()))
+                    except:
+                        msgExec = "Não"
+                    finally:
+                        print('{} \t {} \t SEND  Executado: {} '.format(now.strftime("%H:%M"), name, msgExec))
+
+                elif command == "SENDTO":
+                    try:
+                        cName, cMessage = message.split(" ", 1)  
+                        for o in escreve_socks:
+                            if o != sockobj and str(clientmap[o]).upper() == cName.upper():
+                                name = clientmap[sockobj]
+                                o.send(('{}: {}'.format(name, cMessage).encode()))
+                                break
+                    except:
+                        msgExec = "Não"
+                    finally:
+                        print('{} \t {} \t SENDTO  Executado: {} '.format(now.strftime("%H:%M"), name, msgExec))
+
+                elif command == "WHO":
+                    try:
+                        msgBuilder = ".:LISTA DE CLIENTE CONECTADOS:.\n"
+                        for reg in clientmap.items():
+                            msgBuilder+= "{}\n".format(reg[1])
+                        sockobj.send(msgBuilder.encode())
+                    except:
+                        msgExec = "Não"
+                    finally:
+                        print('{} \t {} \t WHO  Executado: {} '.format(now.strftime("%H:%M"), name, msgExec))
+
+                elif command == "HELP":
+                    try:
+                        msgBuilder = ".:LISTA DE COMANDO:.\n"
+                        msgBuilder += "SEND: Envia uma mensagem para todos os clientes conectados (menos para você mesmo) [SEND <MESSAGE>].\n"
+                        msgBuilder += "SENDTO: Envia uma mensagem para um cliente especifico que está conectado (menos para você mesmo) [SENDTO <CLIENTS_NAME> <MESSAGE>].\n"
+                        msgBuilder += "WHO: Retorna a lista dos clientes conectados ao servidor.\n"
+                        msgBuilder += "HELP: Retorna a lista de comandos suportados e seu uso.\n"
+
+                        sockobj.send(msgBuilder.encode())
+                    except:
+                        msgExec = "Não"
+                    finally:
+                        print('{} \t {} \t HELP  Executado: {} '.format(now.strftime("%H:%M"), name, msgExec))
 
                 else:
-                    sockobj.send('Mensagem Recebida'.encode())
-
-
-
-                # Imprime a mensagem recebida
-                # print()
-                # print('\tRecebeu', data, 'em', id(sockobj))
-
-                # Preparamos uma resposta a ser enviada
-                # resposta = 'Eco=>%s as %s' % (data, agora())
-                # sockobj.send(resposta.encode())
+                    msg = "ERRO: Comando {} inválido".format(command)
+                    print(msg)
+                    sockobj.send(msg.encode())
 
 
 
