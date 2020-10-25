@@ -63,6 +63,3 @@ except Exception as e:
    print("ERRO: ", e,"\nFinalizando programa...")
    time.sleep(1)
    os._exit(0) 
-
-
-

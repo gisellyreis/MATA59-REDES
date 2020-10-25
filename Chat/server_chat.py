@@ -18,8 +18,6 @@ try:
 
     # Configura um socket TCP/IP
     main_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    # Configura o socket
     main_socket.bind((HOST, port))
     main_socket.listen(5)
 
