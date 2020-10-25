@@ -1,20 +1,30 @@
-import time, socket, sys, threading, select
-from datetime import datetime
+import os
+import sys
+import time
+import socket
+import select
+import threading
 
 soc = socket.socket()
-do_read = False
 
 def listen():
-   try:
+   while True:
       r, _, _ = select.select([soc], [], [])
-      do_read = bool(r)
-   except socket.error:
-      pass
-   if do_read:
-      data = soc.recv(1024)
-      print(data.decode())
+      try:
+         data = r[0].recv(1024)
+      except:
+         data = None
+      if data:
+         print(data.decode())
+      else:
+         print("A conexão com o servidor foi perdida.")
+         os._exit(0) 
+
+
+      
 
 try:
+   
    name, server_host, port = input().split()
 
    soc.connect((server_host, int(port)))
@@ -35,6 +45,10 @@ try:
 except KeyboardInterrupt:
    soc.shutdown(socket.SHUT_WR)
    print("Programa finalizado.")
-   sys.exit(0)
+   os._exit(0) 
+except Exception as e:
+   print("ERRO: ", e)
+   os._exit(0) 
+
 
 
