@@ -1,49 +1,40 @@
-import time, socket, sys, threading, signal
+import time, socket, sys, threading, select
 from datetime import datetime
 
 soc = socket.socket()
-exit_prog = False
+do_read = False
 
-def signal_handler(signal, frame):
-  sys.exit(0)
-
-def ReceberMsg():
-   global exit_prog
-
-   while True:
+def listen():
+   try:
+      r, _, _ = select.select([soc], [], [])
+      do_read = bool(r)
+   except socket.error:
+      pass
+   if do_read:
       data = soc.recv(1024)
-      if not data or exit_prog:
-         soc.close()
-         break
-      else:
-         print(data.decode())
+      print(data.decode())
 
+try:
+   name, server_host, port = input().split()
 
-name, server_host, port = input().split()
+   soc.connect((server_host, int(port)))
+   connectionMessage = name
+   soc.send(connectionMessage.encode())
 
-soc.connect((server_host, int(port)))
-connectionMessage = name
-soc.send(connectionMessage.encode())
+   message = soc.recv(1024).decode()
+   print(message)
 
-message = soc.recv(1024).decode()
-print(message)
+   if str(message).split(" ", 1)[0] != "ERRO:":
+      # Inicia a Thread responsável por receber as mensagens do servidor.
+      t = threading.Thread(target = listen)
+      t.start()
 
-if str(message).split(" ", 1)[0] != "ERRO:":
-   # Inicia a Thread responsável por receber as mensagens do servidor.
-   t = threading.Thread(target=ReceberMsg)
-   t.start()
+      while True:
+         message = input()
+         soc.send(message.encode())
+except KeyboardInterrupt:
+   soc.shutdown(socket.SHUT_WR)
+   print("Programa finalizado.")
+   sys.exit(0)
 
-   while True:
-      message = input()
-
-      # if keyboard.is_pressed('Ctrl + c'):
-      #    print('Você foi desconectado.')
-      #    soc.close()
-      #    exit_prog = True
-      #    time.sleep(1)
-      #    sys.exit(0)
-
-      soc.send(message.encode())
-
-print("Programa finalizado.")
 
