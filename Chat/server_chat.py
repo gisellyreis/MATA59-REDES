@@ -142,7 +142,7 @@ try:
                     elif command == "HELP":
                         try:
                             name = clientmap[sockobj]
-                            msgBuilder = ".:LISTA DE COMANDO:.\n"
+                            msgBuilder = ".:LISTA DE COMANDOS:.\n"
                             msgBuilder += "SEND: Envia uma mensagem para todos os clientes conectados (menos para você mesmo) [SEND <MESSAGE>].\n"
                             msgBuilder += "SENDTO: Envia uma mensagem para um cliente especifico que está conectado (menos para você mesmo) [SENDTO <CLIENTS_NAME> <MESSAGE>].\n"
                             msgBuilder += "WHO: Retorna a lista dos clientes conectados ao servidor.\n"
@@ -163,10 +163,10 @@ try:
 # CTRL+C ativado: Finaliza imediatamente do programa
 except KeyboardInterrupt:
     #print("Aviso: \"CTRL + C\" ativado, finalizando programa...")
-    time.sleep(1)
+    # time.sleep(1)
     os._exit(0)
 # Caso ocorra algum erro no programa: informa o erro e finializa o programa
 except Exception as e:
     #print("ERRO: ", e,"\nFinalizando programa...")
-    time.sleep(1)
+    # time.sleep(1)
     os._exit(0) 

@@ -60,10 +60,10 @@ except KeyboardInterrupt:
    # Desliga o socket principal
    main_socket.shutdown(socket.SHUT_WR)
    #print("Aviso: \"CTRL + C\" ativado, finalizando programa...")
-   time.sleep(1)
+   # time.sleep(1)
    os._exit(0) 
 # Caso ocorra algum erro no programa: informa o erro e finializa
 except Exception as e:
    #print("ERRO: ", e,"\nFinalizando programa...")
-   time.sleep(1)
+   # time.sleep(1)
    os._exit(0) 
