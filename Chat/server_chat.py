@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import select
 import socket
@@ -14,7 +15,8 @@ clientmap = {}
 
 try:
     # Recebe a entrada referente ao número da porta
-    port = int(input())
+    #port = int(input())
+    port = int(sys.argv[1])
 
     # Configura um socket TCP/IP
     main_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -41,7 +43,7 @@ try:
                 # Verifica se já exite algum cliente com o mesmo nome
                 for reg in clientmap.items():
                     if str(reg[1]).upper() == name.upper():
-                        novo_sock.send("ERRO: O nome de usuário já está em uso.".encode())
+                        #novo_sock.send("ERRO: O nome de usuário já está em uso.".encode())
                         novo_sock.close()
                         socketReady = False
                         break
@@ -160,11 +162,11 @@ try:
 
 # CTRL+C ativado: Finaliza imediatamente do programa
 except KeyboardInterrupt:
-    print("Aviso: \"CTRL + C\" ativado, finalizando programa...")
+    #print("Aviso: \"CTRL + C\" ativado, finalizando programa...")
     time.sleep(1)
     os._exit(0)
 # Caso ocorra algum erro no programa: informa o erro e finializa o programa
 except Exception as e:
-    print("ERRO: ", e,"\nFinalizando programa...")
+    #print("ERRO: ", e,"\nFinalizando programa...")
     time.sleep(1)
     os._exit(0) 

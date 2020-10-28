@@ -24,13 +24,17 @@ def listen():
       # Caso a mensagem seja nula
       else:
          # Isso representa a perda de conexão com o servidor e por isso é finalizado o programa
-         print("A conexão com o servidor foi perdida, finalizando programa...")
+         #print("A conexão com o servidor foi perdida, finalizando programa...")
          time.sleep(1)
          os._exit(0) 
 
 try:
    # Recebe os parêmetros de conexão informados pelo cliente
-   name, server_host, port = input().split()
+   #name, server_host, port = input().split()
+   name = sys.argv[1]
+   server_host = sys.argv[2]
+   port = sys.argv[3]
+   print(name, server_host, port)
    # Estabelece conexão com o servidor
    main_socket.connect((server_host, int(port)))
    # Envia o nome do cliente para registro no servidor
@@ -55,11 +59,11 @@ try:
 except KeyboardInterrupt:
    # Desliga o socket principal
    main_socket.shutdown(socket.SHUT_WR)
-   print("Aviso: \"CTRL + C\" ativado, finalizando programa...")
+   #print("Aviso: \"CTRL + C\" ativado, finalizando programa...")
    time.sleep(1)
    os._exit(0) 
 # Caso ocorra algum erro no programa: informa o erro e finializa
 except Exception as e:
-   print("ERRO: ", e,"\nFinalizando programa...")
+   #print("ERRO: ", e,"\nFinalizando programa...")
    time.sleep(1)
    os._exit(0) 
