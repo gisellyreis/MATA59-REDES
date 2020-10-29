@@ -6,7 +6,7 @@
 - Giselly Alves Reis - giselly_reis@outlook.com
 - Airton Serra - airton_serra_sena@hotmail.com
 
-- Lingauagem utilizda: Python
+- Linguagem utilizada: Python
 
 ## A Topologia
 
